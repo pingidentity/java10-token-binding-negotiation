@@ -83,7 +83,7 @@ With the EKM and the negotiated key parameters type, a library like [token-bindi
 ### <a name="versions"></a> Versions
 The Token Binding negotiation implementation relies on modifications to a few OpenJDK classes so needs to be updated to stay in sync when there are changes to those OpenJDK classes in a Java update. As such, the java10-token-binding-negotiation jar version matching the JRE version needs to be used. The following provides the version mappings.
 
-| Java 10 Version  | java9-token-binding-negotiation Version
+| Java 10 Version  | java10-token-binding-negotiation Version
 | ------------- |-------------
 | 10.0.1 | [1.0.0.v1]
 | 10 | [1.0.0.v1]
