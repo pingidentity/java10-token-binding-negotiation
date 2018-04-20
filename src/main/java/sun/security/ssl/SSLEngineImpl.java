@@ -150,6 +150,27 @@ public final class SSLEngineImpl extends SSLEngine {
     private SSLSessionImpl              sess;
     private volatile SSLSessionImpl     handshakeSession;
 
+    // -- token binding etc. changes begin --
+    /*
+     * RFC 5705 Keying Material Exporters use client and sever random
+     * as inputs into the PRF.
+     */
+    byte[]                              clientRandom, serverRandom;
+
+    /*
+     * The identifier of the Token Binding key parameters that were
+     * negotiated. Null means that Token Binding wasn't negotiated.
+     */
+    Byte                        negotiatedTokenBindingKeyParams;
+
+
+    /*
+     *  The list of identifiers of the Token Binding key parameters
+     *  supported in descending order of preference.
+     */
+    byte[]                      supportedTokenBindingKeyParams;
+    // -- token binding etc. changes end --
+    
     /*
      * Flag indicating if the next record we receive MUST be a Finished
      * message. Temporarily set during the handshake to ensure that
@@ -2286,6 +2307,29 @@ public final class SSLEngineImpl extends SSLEngine {
         return this.applicationProtocolSelector;
     }
 
+    // -- token binding etc. changes begin --
+    public byte[] exportKeyingMaterial(String label, int length)
+            throws DigestException, NoSuchAlgorithmException {
+        return KeyingMaterialExporter.ekm(label, length, protocolVersion,
+                sess, clientRandom, serverRandom);
+    }
+
+    public Byte getNegotiatedTokenBindingKeyParams()
+    {
+        return negotiatedTokenBindingKeyParams;
+    }
+
+    public byte[] getSupportedTokenBindingKeyParams()
+    {
+        return supportedTokenBindingKeyParams;
+    }
+
+    public void setSupportedTokenBindingKeyParams(byte[] supportedTokenBindingKeyParams)
+    {
+        this.supportedTokenBindingKeyParams = supportedTokenBindingKeyParams;
+    }
+    // -- token binding etc. changes end --
+    
     /**
      * Returns a printable representation of this end of the connection.
      */

@@ -29,9 +29,11 @@ package sun.security.ssl;
 import java.io.*;
 import java.nio.*;
 import java.net.*;
+import java.security.DigestException;
 import java.security.GeneralSecurityException;
 import java.security.AccessController;
 import java.security.AccessControlContext;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
 import java.security.AlgorithmConstraints;
 import java.util.*;
@@ -216,6 +218,27 @@ public final class SSLSocketImpl extends BaseSSLSocketImpl {
     // Is the sniMatchers set to empty with SSLParameters.setSNIMatchers()?
     private boolean             noSniMatcher = false;
 
+    // -- token binding etc. changes begin --
+    /*
+     * RFC 5705 Keying Material Exporters use client and sever random
+     * as inputs into the PRF.
+     */
+    byte[]                              clientRandom, serverRandom;
+
+    /*
+     * The identifier of the Token Binding key parameters that were
+     * negotiated. Null means that Token Binding wasn't negotiated.
+     */
+    Byte                        negotiatedTokenBindingKeyParams;
+
+
+    /*
+     *  The list of identifiers of the Token Binding key parameters
+     *  supported in descending order of preference.
+     */
+    byte[]                      supportedTokenBindingKeyParams;
+    // -- token binding etc. changes end --
+    
     // Configured application protocol values
     String[] applicationProtocols = new String[0];
 
@@ -2740,4 +2763,28 @@ public final class SSLSocketImpl extends BaseSSLSocketImpl {
 
         return retval.toString();
     }
+
+    // -- token binding etc. changes begin --
+    public byte[] exportKeyingMaterial(String label, int length)
+            throws DigestException, NoSuchAlgorithmException
+    {
+        return KeyingMaterialExporter.ekm(label, length, protocolVersion,
+                sess, clientRandom, serverRandom);
+    }
+
+    public Byte getNegotiatedTokenBindingKeyParams()
+    {
+        return negotiatedTokenBindingKeyParams;
+    }
+
+    public byte[] getSupportedTokenBindingKeyParams()
+    {
+        return supportedTokenBindingKeyParams;
+    }
+
+    public void setSupportedTokenBindingKeyParams(byte[] supportedTokenBindingKeyParams)
+    {
+        this.supportedTokenBindingKeyParams = supportedTokenBindingKeyParams;
+    }
+    // -- token binding etc. changes end --
 }

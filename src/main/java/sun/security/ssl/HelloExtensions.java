@@ -95,6 +95,10 @@ final class HelloExtensions {
                 extension = new CertStatusReqListV2Extension(s, extlen);
             } else if (extType == ExtensionType.EXT_EXTENDED_MASTER_SECRET) {
                 extension = new ExtendedMasterSecretExtension(s, extlen);
+            // -- token binding etc. changes begin --
+            } else if (type == TokenBindingExtension.ID) {
+                extension = new TokenBindingExtension(s, extType);
+            // -- token binding etc. changes end --
             } else {
                 extension = new UnknownExtension(s, extlen, extType);
             }

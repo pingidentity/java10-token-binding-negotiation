@@ -796,6 +796,10 @@ final class ServerHandshaker extends Handshaker {
         svr_random = new RandomCookie(sslContext.getSecureRandom());
         m1.svr_random = svr_random;
 
+        // -- token binding etc. changes begin --
+        setConnectionRandoms();
+        // -- token binding etc. changes end --
+
         //
         // If client hasn't specified a session we can resume, start a
         // new one and choose its cipher suite and compression options.
@@ -946,6 +950,17 @@ final class ServerHandshaker extends Handshaker {
         if (session.getUseExtendedMasterSecret()) {
             m1.extensions.add(new ExtendedMasterSecretExtension());
         }
+
+        // -- token binding etc. changes begin --
+        HelloExtension ctbx = mesg.extensions.get(ExtensionType.EXT_TOKEN_BINDING);
+        TokenBindingExtension stbx = TokenBindingExtension
+                .processClientHello(ctbx, session.getUseExtendedMasterSecret(),
+                        secureRenegotiation, getConnectionSupportedTokenBindingKeyParams());
+        if (stbx != null) {
+            m1.extensions.add(stbx);
+            setConnectionNegotiatedTokenBindingKeyParams(stbx.keyParametersList[0]);
+        }
+        // -- token binding etc. changes end --
 
         StaplingParameters staplingParams = processStapling(mesg);
         if (staplingParams != null) {
@@ -1235,6 +1250,13 @@ final class ServerHandshaker extends Handshaker {
         output.flush();
     }
 
+    // -- token binding etc. changes begin --
+    @Override
+    byte[] getDefaultSupportedTokenBindingKeyParams() {
+        return TokenBindingExtension.getDefaultServerSupportedKeyParams();
+    }
+    // -- token binding etc. changes end --
+    
     /*
      * Choose cipher suite from among those supported by client. Sets
      * the cipherSuite and keyExchange variables.

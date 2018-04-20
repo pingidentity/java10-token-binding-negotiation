@@ -615,6 +615,10 @@ final class ClientHandshaker extends Handshaker {
         //
         svr_random = mesg.svr_random;
 
+        // -- token binding etc. changes begin --
+        setConnectionRandoms();
+        // -- token binding etc. changes end --
+
         if (isNegotiable(mesg.cipherSuite) == false) {
             fatalSE(Alerts.alert_illegal_parameter,
                 "Server selected improper ciphersuite " + mesg.cipherSuite);
@@ -757,6 +761,22 @@ final class ClientHandshaker extends Handshaker {
             }
         }
 
+        // -- token binding etc. changes begin --
+        TokenBindingExtension tbx = (TokenBindingExtension) mesg.extensions.get(ExtensionType.EXT_TOKEN_BINDING);
+        if (tbx != null) {
+            byte[] requestedKeyParamsList = getConnectionSupportedTokenBindingKeyParams();
+
+            try {
+                byte serverChosenKeyParams = tbx.processServerHello(extendedMasterSecretExt != null,
+                        secureRenegotiation, requestedKeyParamsList);
+                setConnectionNegotiatedTokenBindingKeyParams(serverChosenKeyParams);
+            }
+            catch (SSLHandshakeException e) {
+                fatalSE(Alerts.alert_unsupported_extension, e.getMessage(), e);
+            }
+        }
+        // -- token binding etc. changes end --
+
         // check the ALPN extension
         ALPNExtension serverHelloALPN =
             (ALPNExtension) mesg.extensions.get(ExtensionType.EXT_ALPN);
@@ -826,6 +846,9 @@ final class ClientHandshaker extends Handshaker {
                     && (type != ExtensionType.EXT_SERVER_NAME)
                     && (type != ExtensionType.EXT_ALPN)
                     && (type != ExtensionType.EXT_RENEGOTIATION_INFO)
+                    // -- token binding etc. changes begin --
+                    && (type != ExtensionType.EXT_TOKEN_BINDING)
+                    // -- token binding etc. changes end --
                     && (type != ExtensionType.EXT_STATUS_REQUEST)
                     && (type != ExtensionType.EXT_STATUS_REQUEST_V2)
                     && (type != ExtensionType.EXT_EXTENDED_MASTER_SECRET)) {
@@ -1712,8 +1735,23 @@ final class ClientHandshaker extends Handshaker {
             initialClientHelloMsg = clientHelloMessage;
         }
 
+        // -- token binding etc. changes begin --
+        byte[] supportedTokenBindingKeyParams = getConnectionSupportedTokenBindingKeyParams();
+
+        if (supportedTokenBindingKeyParams != null && supportedTokenBindingKeyParams.length > 0 && requestedToUseEMS) {
+            clientHelloMessage.extensions.add(new TokenBindingExtension(1, 0, supportedTokenBindingKeyParams));
+        }
+        // -- token binding etc. changes end --
+
         return clientHelloMessage;
     }
+
+    // -- token binding etc. changes begin --
+    @Override
+    byte[] getDefaultSupportedTokenBindingKeyParams() {
+        return TokenBindingExtension.getDefaultClientSupportedKeyParams();
+    }
+    // -- token binding etc. changes end --
 
     /*
      * Fault detected during handshake.
