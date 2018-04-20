@@ -1,6 +1,4 @@
-### todo
-
-## Token Binding Protocol Negotiation TLS Extension support for Java 9
+## Token Binding Protocol Negotiation TLS Extension support for Java 10
 
 ### Introduction
 Token Binding over HTTP [[I-D.ietf-tokbind-https]] provides a mechanism
@@ -20,7 +18,7 @@ with the Token Binding ID, which ensures those tokens cannot be used
 successfully over a different TLS connection or by a different client
 than the one to which they were issued.
 
-This project provides an implementation of the TLS Extension for Token Binding Protocol Negotiation as well as TLS Keying Material Exporters (also TLS Extended Master Secret Extension [[RFC 7627]] in some older versions) for Java 9. An an open source library for consuming or producing Token Binding message structures, which applications do after negotiation, can be found with the [token-binding-java] project.  
+This project provides an implementation of the TLS Extension for Token Binding Protocol Negotiation as well as TLS Keying Material Exporters for Java 10. An an open source library for consuming or producing Token Binding message structures, which applications do after negotiation, can be found with the [token-binding-java] project.
 
 ### Usage
 This implementation relies on modifications of a few JDK classes in the `sun.security.ssl` package. The JVM needs to be told to use those modified classes in place of those in the base modul of the JRE. And your application needs to interact with the API of some of those classes, likely through reflection and dynamic method invocation.
@@ -29,10 +27,10 @@ This implementation relies on modifications of a few JDK classes in the `sun.sec
 To use the functionality of this project, the JVM needs to be started using the `--patch-module` option as follows:
 
 ```
-java --patch-module java.base=<path-to-java9-token-binding-negotiation-jar> --add-exports java.base/sun.security.ssl=ALL-UNNAMED ...
+java --patch-module java.base=<path-to-java10-token-binding-negotiation-jar> --add-exports java.base/sun.security.ssl=ALL-UNNAMED ...
 ```
 
-Where path-to-java9-token-binding-negotiation-jar is the path on the file system for this project's jar file. This prepends the jar file to the default bootstrap classpath so that its classes will be used in place of the default JRE classes. Be certain to use the jar version which corresponds to the version of the JRE being used (see [Versions](#versions) below).
+Where path-to-java10-token-binding-negotiation-jar is the path on the file system for this project's jar file. This prepends the jar file to the default bootstrap classpath so that its classes will be used in place of the default JRE classes. Be certain to use the jar version which corresponds to the version of the JRE being used (see [Versions](#versions) below).
 
 #### API
 A few new methods have been added to the OpenJDK implementations of `SSLEngine` and `SSLSocket` to facilitate an application doing Token Binding using the functionality provided by this project.   
@@ -83,13 +81,12 @@ byte[] ekm = (byte[]) ekmMethod.invoke(object, "EXPORTER-Token-Binding", 32);
 With the EKM and the negotiated key parameters type, a library like [token-binding-java] can be used to consume or create Token Binding messages.
 
 ### <a name="versions"></a> Versions
-The Token Binding negotiation implementation relies on modifications to a few OpenJDK classes so needs to be updated to stay in sync when there are changes to those OpenJDK classes in a Java update. As such, the java9-token-binding-negotiation jar version matching the JRE version needs to be used. The following provides the version mappings.
+The Token Binding negotiation implementation relies on modifications to a few OpenJDK classes so needs to be updated to stay in sync when there are changes to those OpenJDK classes in a Java update. As such, the java10-token-binding-negotiation jar version matching the JRE version needs to be used. The following provides the version mappings.
 
-| Java 9 Version  | java9-token-binding-negotiation Version
+| Java 10 Version  | java9-token-binding-negotiation Version
 | ------------- |-------------
-| 9.0.4 | [1.0.0.v2]
-| 9.0.1 | [1.0.0.v1]
-| 9 | unsupported
+| 10.0.1 | [1.0.0.v1]
+| 10 | [1.0.0.v1]
 
 See [java8-token-binding-negotiation] for Token Binding Protocol Negotiation support with Java 8.
 
@@ -97,8 +94,7 @@ See [java8-token-binding-negotiation] for Token Binding Protocol Negotiation sup
 The modified OpenJDK classes are released under the same GPLv2 + Classpath Exception license as the OpenJDK.
 
 
-[1.0.0.v1]:https://github.com/pingidentity/java9-token-binding-negotiation/releases/tag/java9-token-binding-negotiation-1.0.0.v1
-[1.0.0.v2]:https://github.com/pingidentity/java9-token-binding-negotiation/releases/tag/java9-token-binding-negotiation-1.0.0.v2
+[1.0.0.v1]:https://github.com/pingidentity/java10-token-binding-negotiation/releases/tag/java10-token-binding-negotiation-1.0.0.v1
 
 
 [token-binding-java]:https://github.com/pingidentity/token-binding-java
@@ -110,4 +106,3 @@ The modified OpenJDK classes are released under the same GPLv2 + Classpath Excep
 [I-D.ietf-tokbind-negotiation]:https://tools.ietf.org/html/draft-ietf-tokbind-negotiation
 
 [RFC 5705]:https://tools.ietf.org/html/rfc5705
-[RFC 7627]:https://tools.ietf.org/html/rfc7627
