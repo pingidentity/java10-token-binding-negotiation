@@ -30,7 +30,7 @@ To use the functionality of this project, the JVM needs to be started using the 
 java --patch-module java.base=<path-to-java10-token-binding-negotiation-jar> --add-exports java.base/sun.security.ssl=ALL-UNNAMED ...
 ```
 
-Where path-to-java10-token-binding-negotiation-jar is the path on the file system for this project's jar file. This prepends the jar file to the default bootstrap classpath so that its classes will be used in place of the default JRE classes. Be certain to use the jar version which corresponds to the version of the JRE being used (see [Versions](#versions) below).
+Where path-to-java10-token-binding-negotiation-jar is the path on the file system for this project's jar file. This tells the JVM to use the jar file and its classes in prefernce to the default JRE classes. Be certain to use the jar version which corresponds to the version of the JRE being used (see [Versions](#versions) below).
 
 #### API
 A few new methods have been added to the OpenJDK implementations of `SSLEngine` and `SSLSocket` to facilitate an application doing Token Binding using the functionality provided by this project.   
