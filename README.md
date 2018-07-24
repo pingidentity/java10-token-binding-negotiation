@@ -83,6 +83,7 @@ The Token Binding negotiation implementation relies on modifications to a few Op
 
 | Java 10 Version  | java10-token-binding-negotiation Version
 | ------------- |-------------
+| 10.0.2 | [1.0.0.v1]
 | 10.0.1 | [1.0.0.v1]
 | 10 | [1.0.0.v1]
 
